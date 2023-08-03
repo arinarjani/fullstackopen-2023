@@ -5,6 +5,7 @@ import phonebook from './services/phonebook';
 import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
+import Notification from './components/Notification';
 
 function App() {
   // 1
@@ -17,11 +18,11 @@ function App() {
   const [search, setSearch] = useState('');
   // 5
   const [filteredPeople, setFilteredPeople] = useState([]);
+  // 6
+  const [noticiation, setNotification] = useState(null);
 
   // 2.11 Modify the application such that the initial state of the data is fetched from 
   // the server using the axios-library. Complete the fetching with an Effect hook.
-  // 2.13 - Extract the code that handles the communication with the backend 
-  //        into its own module by following the example shown earlier in this part of the course material.
   useEffect(() => {
     phonebook
       .getAll()
@@ -38,22 +39,37 @@ function App() {
     setNumber(event.target.value)
   }
 
-  // put name and number of person in person state
+  // update persons number if desired (lines 46 to 72 ) / put name and number of person in person state (lines 74 to 86)
   const handleSubmit = (event) => {
     event.preventDefault();
+
     const duplicateName = persons.find(person => person.name === newName);
+
     if (duplicateName) {
-      // alert(`${newName} is already added to the phonebook`)
+      // alert(`${newName} is already added to the phonebook`) OLD VERSION BEFORE 2.15
+
       // 2.15 - Change the functionality so that if a number is added to 
       //        an already existing user, the new number will replace the old number.
       const replaceNumber = window.confirm(`${newName} is already in the phonebook, replace the old number with the new one?`)
+
       if (replaceNumber) {
-        // make a new object with the upated number
+        // make a new object with the upated number, but keep the other data the same
         const updatedPerson = {...duplicateName, number}
-        // make a PUT request to the server to update the number of duplicatePerson
-        phonebook.updatePhoneNumber(updatedPerson.id, updatedPerson).then(response => console.log(response));
-        // update persons state
-        phonebook.getAll().then(updatedNumbers => setPersons(updatedNumbers))
+
+        // make a PUT request to the server to update the number of duplicatePerson, then update the persons state
+        phonebook.updatePhoneNumber(updatedPerson.id, updatedPerson)
+                 .then(response => setPersons(persons.map(person => person.id !== updatedPerson.id ? person : response))); 
+        
+        // 2.16 - show a notification that lasts for a few seconds after a successful operation 
+        //        is executed (a person is added or a number is changed)
+
+        // the notification
+        setNotification(`${updatedPerson.name}'s number has been updated to ${updatedPerson.number}`)
+
+        // the timer to make the notification go away after 5 seconds
+        setTimeout(() => {
+          setNotification(null)
+        }, 5000)
       }
     } else {
       const newPerson = {
@@ -63,18 +79,38 @@ function App() {
 
       // 2.12 - Currently, the numbers that are added to the phonebook are not 
       //        saved to a backend server. Fix this situation.
-      // 2.13 - Extract the code that handles the communication with the backend 
-      //        into its own module by following the example shown earlier in this part of the course material.
       phonebook.create(newPerson)
-               .then(createdPerson => setPersons(persons.concat(newPerson)))
+               .then(createdPerson => setPersons(persons.concat(newPerson)));
+
       setNewName('');
       setNumber('');
+
+      // 2.16 - show a notification that lasts for a few seconds after a successful operation 
+      //        is executed (a person is added or a number is changed)
+
+      // the notification
+      setNotification(`${newPerson.name} has been added to the phonebook`);
+
+      // the timer to make the notification go away after 5 seconds
+      setTimeout(() => {
+        setNotification(null);
+      }, 5000);
     }
   }
 
   // 2.14 - Make it possible for users to delete entries from the phonebook.
   const handleDelete = (id) => {
     phonebook.deletePerson(id)
+              // 2.17 - show a message stating someone has already been deleted if the user deletes 
+              //        someone multiple times (one browser clickd delete, but the other browser 
+              //        still shows the person)
+             .catch(err => {
+                console.log(err);
+                setNotification(`You are trying to delete a person that has already been deleted`)
+                setTimeout(() => {
+                  setNotification(null)
+                }, 5000)
+             })
     phonebook.getAll().then(withoutDeletePerson => setPersons(withoutDeletePerson))
   }
 
@@ -90,6 +126,7 @@ function App() {
 
   return (
     <div>
+      <Notification message={noticiation} />
       <h2>Phonebook</h2>
       <Filter filteredPeople={filteredPeople} searchTerm={search} search={handleSearch} />
       <h2>Add A New Contact</h2>

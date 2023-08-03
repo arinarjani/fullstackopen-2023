@@ -1,6 +1,9 @@
 import axios from 'axios'
 const baseUrl = 'http://localhost:3001/persons'
 
+// 2.13 - Extract the code that handles the communication with the backend 
+//        into its own module by following the example shown earlier in this part of the course material.
+
 const getAll = () => {
     return axios.get(baseUrl)
                 .then(response => response.data)
@@ -20,6 +23,7 @@ const deletePerson = (id) => {
 const updatePhoneNumber = (id, updatedNumber) => {
     return axios.put(`${baseUrl}/${id}`, updatedNumber)
                 .then(response => response.data)
+                .catch(err => console.log(err))
 }
 
 export default { 
