@@ -1,5 +1,5 @@
 const express = require('express');
-// const path = require('path');
+// const path = require('path'); trying to send html files..goes with line 41
 const app = express();
 
 app.use(express.json())
@@ -27,29 +27,6 @@ let persons = [
     }
 ];
 
-// const persons = [
-//     { 
-//       "id": 1,
-//       "name": "Arto Hellas", 
-//       "number": "040-123456"
-//     },
-//     { 
-//       "id": 2,
-//       "name": "Ada Lovelace", 
-//       "number": "39-44-5323523"
-//     },
-//     { 
-//       "id": 3,
-//       "name": "Dan Abramov", 
-//       "number": "12-43-234345"
-//     },
-//     { 
-//       "id": 4,
-//       "name": "Mary Poppendieck", 
-//       "number": "39-23-6423122"
-//     }
-// ];
-
 // 3.1 - Implement a Node application that returns a hardcoded list of phonebook entries 
 //       from the address http://localhost:3001/api/persons.
 app.get('/api/persons', (req, res) => {
@@ -61,7 +38,7 @@ app.get('/api/persons', (req, res) => {
 //                 "Phonebook has info for 2 people"
 //                 "Fri Aug 04 2023 10:53:07 GMT-0700 (Pacific Daylight Time)"
 app.get('/info', (req,res) => {
-    // res.sendFile(path.join(__dirname, "/info.html"))
+    // res.sendFile(path.join(__dirname, "/info.html")) trying to send html files..goes with line 2
     res.send(`Phonebook has info for ${persons.length} people </br> ${new Date().toString()}`)
 });
 
@@ -69,11 +46,14 @@ app.get('/info', (req,res) => {
 //       entry. The url for getting the data for a person with the id 5 should be 
 //       http://localhost:3001/api/persons/5
 app.get('/api/persons/:id', (req, res) => {
+    // find perosn with :id in url in persons array
     const foundPerson = persons.find(person => person.id === Number(req.params.id));
 
     if (foundPerson) {
+        // person is found, send the person via server
         res.json(foundPerson)
     } else {
+        // no person found, send an error message
         res.status(404).send('no person found')
     }
 })
@@ -98,10 +78,13 @@ app.post('/api/persons', (req,res) => {
 
 
     if (!req.body.name) {
+        // no name entered in req.body.name
         res.status(400).send('no name entered')
     } else if (!req.body.number) {
+        // no number entered in req.body.number
         res.status(400).send('no number entered')
     } else if (persons.find(person => person.name.toLowerCase() === req.body.name.toLowerCase())) {
+        // name already in persons array
         res.status(400).send('duplicate name entered')
     } else {
         // get the data sent to the server via req.body
