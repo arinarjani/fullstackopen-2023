@@ -1,8 +1,18 @@
+const morgan = require('morgan');
 const express = require('express');
 // const path = require('path'); trying to send html files..goes with line 41
+
+// 3.8 - Configure morgan so that it also shows the data sent in HTTP POST requests
+morgan.token('body', (req) => {
+    // if the method is POST, return req.body, else return '-'
+    return req.method === "POST" ? JSON.stringify(req.body) : '-';
+})
 const app = express();
 
-app.use(express.json())
+app.use(express.json());
+// 3.7 - Add the morgan middleware to your application for logging. 
+//       Configure it to log messages to your console based on the tiny configuration.
+app.use(morgan(':method :url :status :res[content-length] - :response-time ms :body'));
 
 let persons = [
     { 
@@ -67,16 +77,13 @@ app.delete('/api/persons/:id', (req, res) => {
     // take out the person with the id no wanted from the persons array
     persons = persons.filter(person => person.id !== Number(id));
 
-    res.send(204).end()
+    res.sendStatus(204).end()
 })
 
 // 3.5 - Expand the backend so that new phonebook entries can be added by making HTTP POST
 //       requests to the address http://localhost:3001/api/persons.
 app.post('/api/persons', (req,res) => {
     // see if a name sent to server is already in the phonebook
-    console.log(typeof req.body)
-
-
     if (!req.body.name) {
         // no name entered in req.body.name
         res.status(400).send('no name entered')
