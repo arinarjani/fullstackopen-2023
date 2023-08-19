@@ -1,6 +1,10 @@
 const morgan = require('morgan');
 const express = require('express');
-// const path = require('path'); trying to send html files..goes with line 41
+const cors = require('cors');
+const Person = require('./models/phonebook')
+
+// const path = require('path'); trying to send html files..goes with 
+// app.get('/info').....
 
 // 3.8 - Configure morgan so that it also shows the data sent in HTTP POST requests
 morgan.token('body', (req) => {
@@ -9,6 +13,13 @@ morgan.token('body', (req) => {
 })
 const app = express();
 
+// 3.11 - generate a 'build' folder via 'npm run build', put this 'build' folder
+//        into the backend directory, and test
+app.use(express.static('build'));
+// 3.9 - makae the backend work with the front-end. I did this via proxy in 
+//       'package.json' after changing the url in '/services/phonebook.js' from
+//       'http://localhost:3001/persons' to '/api/persons' in part2/phonebook/src
+app.use(cors());
 app.use(express.json());
 // 3.7 - Add the morgan middleware to your application for logging. 
 //       Configure it to log messages to your console based on the tiny configuration.
@@ -39,8 +50,13 @@ let persons = [
 
 // 3.1 - Implement a Node application that returns a hardcoded list of phonebook entries 
 //       from the address http://localhost:3001/api/persons.
+// 3.13 - Change the fetching of all phonebook entries 
+//        so that the data is fetched from the database.
 app.get('/api/persons', (req, res) => {
-    res.json(persons)
+    // res.json(persons)
+    Person.find({}).then(people => {
+        res.json(people)
+    })
 });
 
 // 3.2 - Implement a page at the address http://localhost:3001/info that looks roughly 
@@ -55,17 +71,31 @@ app.get('/info', (req,res) => {
 // 3.3 - Implement the functionality for displaying the information for a single phonebook
 //       entry. The url for getting the data for a person with the id 5 should be 
 //       http://localhost:3001/api/persons/5
-app.get('/api/persons/:id', (req, res) => {
-    // find perosn with :id in url in persons array
-    const foundPerson = persons.find(person => person.id === Number(req.params.id));
+app.get('/api/persons/:id', (req, res, next) => {
+    // // find perosn with :id in url in persons array
+    // const foundPerson = persons.find(person => person.id === Number(req.params.id));
 
-    if (foundPerson) {
-        // person is found, send the person via server
-        res.json(foundPerson)
-    } else {
-        // no person found, send an error message
-        res.status(404).send('no person found')
-    }
+    // if (foundPerson) {
+    //     // person is found, send the person via server
+    //     res.json(foundPerson)
+    // } else {
+    //     // no person found, send an error message
+    //     res.status(404).send('no person found')
+    // }
+
+    Person.findById(req.params.id)
+          .exec()
+          .then(foundPerson => {
+            if (foundPerson) {
+                res.json(foundPerson)
+            } else {
+                res.status(404).end()
+            }
+          }).catch(err => {
+            // console.log(err)
+            // res.status(400).send({error: 'malformatted id'})
+            next(err)
+          })
 })
 
 // 3.4 - Implement functionality that makes it possible to delete a single phonebook entry
@@ -82,6 +112,8 @@ app.delete('/api/persons/:id', (req, res) => {
 
 // 3.5 - Expand the backend so that new phonebook entries can be added by making HTTP POST
 //       requests to the address http://localhost:3001/api/persons.
+// 3.14 - Change the backend so that new numbers are saved to the database. 
+//        Verify that your frontend still works after the changes.
 app.post('/api/persons', (req,res) => {
     // see if a name sent to server is already in the phonebook
     if (!req.body.name) {
@@ -98,12 +130,28 @@ app.post('/api/persons', (req,res) => {
         const { body } = req;
 
         // create a person to pass into the persons array
-        persons = persons.concat( {id: Math.round(Math.random() * 1000), ...body} );
+        // persons = persons.concat( {id: Math.round(Math.random() * 1000), ...body} );
 
-        res.json(persons)
+        // add a person to the phonebook
+        Person.create(body).then(savedPerson => res.json(savedPerson))
+
+        // res.json(persons)
     }
     
 })
+
+// ERROR HANDLNG
+const errorHandler = (err, req, res, next) => {
+    console.log(err.message)
+
+    if (err.name === 'CastError') {
+        return res.status(400).send({error: 'malformatted id'});
+    }
+    
+    next(err);
+}
+
+app.use(errorHandler);
 
 app.listen(3001, () => {
     console.log(`app is running on port 3001`);

@@ -30,3 +30,9 @@ content-type: application/json
     "name": "sara santamaria",
     "number": "777-555-4565"
 }
+
+###
+GET http://localhost:3001/api/persons/64dfb292e5078918b9f00e24
+
+###
+GET http://localhost:3001/api/persons/123
