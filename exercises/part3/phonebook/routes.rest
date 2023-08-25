@@ -19,7 +19,7 @@ GET http://localhost:3001/api/persons/
 
 ###
 
-DELETE http://localhost:3001/api/persons/679
+DELETE http://localhost:3001/api/persons/64e7847f80667d59779ab235
 
 ###
 
@@ -28,7 +28,17 @@ content-type: application/json
 
 {
     "name": "sara santamaria",
-    "number": "777-555-4565"
+    "number": "777-555-4444"
+}
+
+###
+
+PUT http://localhost:3001/api/persons
+content-type: application/json
+
+{
+    "name": "sara santamaria",
+    "number": "777-555-4626"
 }
 
 ###

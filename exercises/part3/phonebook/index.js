@@ -98,14 +98,23 @@ app.get('/api/persons/:id', (req, res, next) => {
           })
 })
 
-// 3.4 - Implement functionality that makes it possible to delete a single phonebook entry
-//       by making an HTTP DELETE request to the unique URL of that phonebook entry.
-app.delete('/api/persons/:id', (req, res) => {
+// 3.4 - Implement functionality that makes it possible to delete a single 
+// phonebook entry by making an HTTP DELETE request to the unique URL of 
+// that phonebook entry.
+
+// 3.15 - Change the backend so that deleting phonebook entries is reflected in the 
+// database.
+app.delete('/api/persons/:id', (req, res, next) => {
     // get the url id
     const { id } = req.params;
 
-    // take out the person with the id no wanted from the persons array
-    persons = persons.filter(person => person.id !== Number(id));
+    // take out the person with the id from the persons array
+    // persons = persons.filter(person => person.id !== Number(id));
+
+    Person
+        .findByIdAndRemove(id)
+        .then(result => res.status(204).end())
+        .catch(err => next(err));
 
     res.sendStatus(204).end()
 })
@@ -114,7 +123,11 @@ app.delete('/api/persons/:id', (req, res) => {
 //       requests to the address http://localhost:3001/api/persons.
 // 3.14 - Change the backend so that new numbers are saved to the database. 
 //        Verify that your frontend still works after the changes.
-app.post('/api/persons', (req,res) => {
+app.post('/api/persons', async (req,res) => {
+    console.log('in post....')
+
+    const foundPerson = await Person.find({name: req.body.name}).exec()
+
     // see if a name sent to server is already in the phonebook
     if (!req.body.name) {
         // no name entered in req.body.name
@@ -122,7 +135,9 @@ app.post('/api/persons', (req,res) => {
     } else if (!req.body.number) {
         // no number entered in req.body.number
         res.status(400).send('no number entered')
-    } else if (persons.find(person => person.name.toLowerCase() === req.body.name.toLowerCase())) {
+    } else if (foundPerson.length > 0) {
+        // OLD persons.find(person => person.name.toLowerCase() === req.body.name.toLowerCase())
+        
         // name already in persons array
         res.status(400).send('duplicate name entered')
     } else {
@@ -140,7 +155,20 @@ app.post('/api/persons', (req,res) => {
     
 })
 
-// ERROR HANDLNG
+// 3.17 - If the user tries to create a new phonebook entry for a person whose 
+// name is already in the phonebook, the frontend will try to update the phone 
+// number of the existing entry by making an HTTP PUT request to the entry's 
+// unique URL.
+app.put('/api/persons/:id', (req, res) => {
+    console.log('in PUT...')
+
+    // do something PUT wise...
+    Person
+        .findOneAndUpdate({name: req.body.name}, {number: req.body.number}, {new: true})
+        .then(updatedPerson => res.json(updatedPerson))
+})
+
+// 3.16 - Move the error handling of the application to a new error handler middleware.
 const errorHandler = (err, req, res, next) => {
     console.log(err.message)
 
