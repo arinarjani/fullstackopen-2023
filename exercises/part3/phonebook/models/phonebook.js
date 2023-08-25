@@ -5,10 +5,32 @@ const monogoDB = process.env.MONGODB;
 
 mongoose.connect(monogoDB) 
 
+// 3.19 - Expand the validation so that the name stored in the database 
+// has to be at least three characters long.
+// 3.20 - Add validation to your phonebook application, which will 
+// make sure that phone numbers are of the correct form.
 const personSchema = new mongoose.Schema({
     id: Number,
-    name: String,
-    number: String
+    name: {
+        type: String,
+        validate: {
+            validator: (v) => {
+                return v.length > 3
+            },
+            message: (props) => `The name must be longer than three characters, got ${props.value} instead`
+        },
+        required: true
+    },
+    number: {
+        type: String,
+        validate: {
+            validator: (v) => {
+                return /\d{3}-\d{3}-\d{4}/.test(v)
+            },
+            message: props => `${props.value} is not a valid phone number!`
+        },
+        required: [true, 'User phone number required']
+    }
 }, {
     toJSON: {
         transform: function (doc, ret) {

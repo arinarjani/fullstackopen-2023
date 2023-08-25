@@ -63,9 +63,10 @@ app.get('/api/persons', (req, res) => {
 //       like this: 
 //                 "Phonebook has info for 2 people"
 //                 "Fri Aug 04 2023 10:53:07 GMT-0700 (Pacific Daylight Time)"
-app.get('/info', (req,res) => {
+app.get('/info', async (req,res) => {
     // res.sendFile(path.join(__dirname, "/info.html")) trying to send html files..goes with line 2
-    res.send(`Phonebook has info for ${persons.length} people </br> ${new Date().toString()}`)
+    const allPeople = await Person.find({});
+    res.send(`Phonebook has info for ${allPeople.length} people </br> ${new Date().toString()}`)
 });
 
 // 3.3 - Implement the functionality for displaying the information for a single phonebook
@@ -123,9 +124,7 @@ app.delete('/api/persons/:id', (req, res, next) => {
 //       requests to the address http://localhost:3001/api/persons.
 // 3.14 - Change the backend so that new numbers are saved to the database. 
 //        Verify that your frontend still works after the changes.
-app.post('/api/persons', async (req,res) => {
-    console.log('in post....')
-
+app.post('/api/persons', async (req,res, next) => {
     const foundPerson = await Person.find({name: req.body.name}).exec()
 
     // see if a name sent to server is already in the phonebook
@@ -148,7 +147,9 @@ app.post('/api/persons', async (req,res) => {
         // persons = persons.concat( {id: Math.round(Math.random() * 1000), ...body} );
 
         // add a person to the phonebook
-        Person.create(body).then(savedPerson => res.json(savedPerson))
+        Person.create(body)
+            .then(savedPerson => res.json(savedPerson))
+            .catch(err => next(err))
 
         // res.json(persons)
     }
@@ -160,11 +161,13 @@ app.post('/api/persons', async (req,res) => {
 // number of the existing entry by making an HTTP PUT request to the entry's 
 // unique URL.
 app.put('/api/persons/:id', (req, res) => {
-    console.log('in PUT...')
-
     // do something PUT wise...
     Person
-        .findOneAndUpdate({name: req.body.name}, {number: req.body.number}, {new: true})
+        .findOneAndUpdate(
+            {name: req.body.name}, 
+            {number: req.body.number}, 
+            {new: true, runValidators: true, context: 'query'}
+        )
         .then(updatedPerson => res.json(updatedPerson))
 })
 
@@ -174,6 +177,10 @@ const errorHandler = (err, req, res, next) => {
 
     if (err.name === 'CastError') {
         return res.status(400).send({error: 'malformatted id'});
+    }
+
+    if (err.name === 'ValidationError') {
+        return res.status(400).json({err: err.message})
     }
     
     next(err);
