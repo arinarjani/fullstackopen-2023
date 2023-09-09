@@ -1,13 +1,11 @@
-const mongoose = require('mongoose')
-require('dotenv').config()
+const mongoose = require('mongoose');
+const config = require('../utils/config');
 
-const monogoDB = process.env.MONGODB;
+mongoose.connect(config.MONGO_URI);
 
-mongoose.connect(monogoDB) 
-
-// 3.19 - Expand the validation so that the name stored in the database 
+// 3.19 - Expand the validation so that the name stored in the database
 // has to be at least three characters long.
-// 3.20 - Add validation to your phonebook application, which will 
+// 3.20 - Add validation to your phonebook application, which will
 // make sure that phone numbers are of the correct form.
 const personSchema = new mongoose.Schema({
     id: Number,
@@ -15,7 +13,7 @@ const personSchema = new mongoose.Schema({
         type: String,
         validate: {
             validator: (v) => {
-                return v.length > 3
+                return v.length > 3;
             },
             message: (props) => `The name must be longer than three characters, got ${props.value} instead`
         },
@@ -25,7 +23,7 @@ const personSchema = new mongoose.Schema({
         type: String,
         validate: {
             validator: (v) => {
-                return /\d{3}-\d{3}-\d{4}/.test(v)
+                return /\d{3}-\d{3}-\d{4}/.test(v);
             },
             message: props => `${props.value} is not a valid phone number!`
         },
@@ -34,17 +32,17 @@ const personSchema = new mongoose.Schema({
 }, {
     toJSON: {
         transform: function (doc, ret) {
-            ret.id = ret._id.toString()
-            delete ret._id
-            delete ret.__v
+            ret.id = ret._id.toString();
+            delete ret._id;
+            delete ret.__v;
         }
     },
     timestamps: {
         createdAt: 'created_at'
     }
-})
+});
 
-const Person = mongoose.model('Person', personSchema)
+const Person = mongoose.model('Person', personSchema);
 
 // HOW I POPULATED THE DATABASE FOR TESTING PURPOSES...
 // Person.deleteMany({}).then(response => {

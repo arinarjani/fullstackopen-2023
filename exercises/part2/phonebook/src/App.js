@@ -19,7 +19,7 @@ function App() {
   // 5
   const [filteredPeople, setFilteredPeople] = useState([]);
   // 6
-  const [noticiation, setNotification] = useState(null);
+  const [notification, setNotification] = useState(null);
 
   // 2.11 Modify the application such that the initial state of the data is fetched from 
   // the server using the axios-library. Complete the fetching with an Effect hook.
@@ -71,7 +71,16 @@ function App() {
           setNotification(null)
         }, 5000)
       }
-    } else {
+    } 
+    // else if (number.length < 5 || newName.length < 5) {
+    //   // 3.19 - 
+    //   setNotification('The name and number must be 5 or more characters')
+
+    //   setTimeout(() => {
+    //     setNotification(null)
+    //   }, 5000)
+    // } 
+    else {
       const newPerson = {
         name: newName,
         number: number
@@ -80,21 +89,31 @@ function App() {
       // 2.12 - Currently, the numbers that are added to the phonebook are not 
       //        saved to a backend server. Fix this situation.
       phonebook.create(newPerson)
-               .then(createdPerson => setPersons(persons.concat(newPerson)));
+               .then((createdPerson) => {
+                  setPersons(persons.concat(newPerson))
+                  setNewName('');
+                  setNumber('');
 
-      setNewName('');
-      setNumber('');
+                  // 2.16 - show a notification that lasts for a few seconds after a successful operation 
+                  //        is executed (a person is added or a number is changed)
 
-      // 2.16 - show a notification that lasts for a few seconds after a successful operation 
-      //        is executed (a person is added or a number is changed)
+                  // the notification
+                  setNotification(`${newPerson.name} has been added to the phonebook`);
 
-      // the notification
-      setNotification(`${newPerson.name} has been added to the phonebook`);
+                  // the timer to make the notification go away after 5 seconds
+                  setTimeout(() => {
+                    setNotification(null);
+                  }, 5000);
+                })
+                .catch((err) => {
+                  // 3.19 - Expand the frontend so that it displays some form of 
+                  // error message when a validation error occurs. 
+                  setNotification(err.response.data.err)
 
-      // the timer to make the notification go away after 5 seconds
-      setTimeout(() => {
-        setNotification(null);
-      }, 5000);
+                  setTimeout(() => {
+                    setNotification(null);
+                  }, 5000)
+                })
     }
   }
 
@@ -126,7 +145,7 @@ function App() {
 
   return (
     <div>
-      <Notification message={noticiation} />
+      <Notification message={notification} />
       <h2>Phonebook</h2>
       <Filter filteredPeople={filteredPeople} searchTerm={search} search={handleSearch} />
       <h2>Add A New Contact</h2>

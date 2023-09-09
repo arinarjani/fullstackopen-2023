@@ -6,13 +6,15 @@
   "scripts": {
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "mongo": "nodemon mongo.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint ."
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "eslint": "^8.48.0",
+    "eslint-plugin-react": "^7.33.2",
     "nodemon": "^3.0.1"
   },
   "dependencies": {
