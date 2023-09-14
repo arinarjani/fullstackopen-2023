@@ -12,6 +12,17 @@ blogsRouter.get('/', async (req,res) => {
     // Blog.find({}).then(blogs => res.json(blogs))
 })
 
+blogsRouter.get('/:id', async (req, res) => {
+    const { id } = req.params
+
+    try {
+        const foundBlog = await Blog.findById(id).exec()
+        res.status(200).json(foundBlog)
+    } catch (err) {
+        logger.error({error: `blog not found with the id of ${id}`})
+    }
+})
+
 blogsRouter.post('/', async (req, res) => {
     const blogPost = new Blog(req.body)
 
@@ -25,6 +36,19 @@ blogsRouter.post('/', async (req, res) => {
     // Blog.create(blogPost)
     //     .then(createdBlog => res.status(201).json(createdBlog))
     //     .catch(err => logger.info('blog not created...'))
+})
+
+blogsRouter.delete('/:id', async (req,res) => {
+    const { id } = req.params
+
+    try {
+        await Blog.findByIdAndDelete(id)
+        res.status(204).end()
+    } catch (err) {
+        logger.error({error: `could not delete blog with id of ${id}`})
+    }
+
+    res.status(204)
 })
 
 module.exports = blogsRouter

@@ -2,23 +2,9 @@ const mongoose = require('mongoose')
 const supertest = require('supertest')
 const app = require('../app')
 const Blogs = require('../models/blogs')
+const { initialBlogs, nonExistingId, blogsInDb } = require('./test_helper')
 
 const api = supertest(app)
-
-const initialBlogs = [
-  {
-    title: 'blog 1',
-    author: 'author 1',
-    url: 'url 1',
-    likes: 1
-  },
-  {
-    title: 'blog 2',
-    author: 'author 2',
-    url: 'url 2',
-    likes: 2
-  }
-]
 
 beforeEach(async () => {
   // delete all blogs in database
@@ -27,7 +13,7 @@ beforeEach(async () => {
   await Blogs.create(initialBlogs);
 })
 
-test('notes are returned as json', async () => {
+test('blogs are returned as json', async () => {
     await api
       .get('/api/blogs')
       .expect(200)
@@ -57,11 +43,12 @@ test('a blog is added to the database correctly and the db length is increased b
       .expect('Content-Type', /application\/json/)
 
     // get all blogs from db
-    const response = await api.get('/api/blogs')
-    // create an array from the blogs with only the blog titles
-    const content = response.body.map(r => r.title)
+    const response = await blogsInDb()
 
-    expect(response.body).toHaveLength(initialBlogs.length + 1)
+    // create an array from the blogs with only the blog titles
+    const content = response.map(r => r.title)
+
+    expect(response).toHaveLength(initialBlogs.length + 1)
     expect(content).toContain('blog 3')
 })
 
@@ -72,10 +59,53 @@ test('blog without a title will not be added to the db',  async () => {
     .send({author: 'author 3', url: 'url 3', likes: 3})
     .expect(400)
 
-  // check to see if the db increased in legnth -> the blog without a title got posted
-  const response = await api.get('/api/blogs')
+  // check to see if the db increased in legnth 
+  //   -> the blog without a title got posted, so
+  //      the length of the db did not increase
+  const response = await blogsInDb()
 
-  expect(response.body).toHaveLength(initialBlogs.length)
+  expect(response).toHaveLength(initialBlogs.length)
+})
+
+test('find a blog based on id', async () => {
+  // get all the blogs in the db
+  const allBlogs = await blogsInDb()
+
+  // select the first blog in the db
+  const blogToView = allBlogs[0]
+
+  // use GET with the blogToView.id to see if the server responds with
+  // the correct blog
+  const blogReturnedFromServer = 
+    await api 
+      .get(`/api/blogs/${blogToView.id}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/)
+
+
+  // see if blogReturnedFromServer matches blogToView
+  expect(blogReturnedFromServer.body.id).toEqual(blogToView.id)
+
+})
+
+test('can one delete a blog from the db', async () => {
+  // get all the blogs in the db before the delete
+  const allBlogsBeforeDelete = await blogsInDb()
+
+  // delete the first blog
+  await api
+    .delete(`/api/blogs/${allBlogsBeforeDelete[0].id}`)
+    .expect(204)
+
+  // get all the blogs in the db after the delete  
+  const allBlogsAfterDelete = await blogsInDb()
+
+  expect(allBlogsAfterDelete).toHaveLength(allBlogsBeforeDelete.length - 1)
+
+  // get all the id's of blogs in allBlogsAfterDelete
+  const ids = allBlogsAfterDelete.map(blog => blog.id)
+
+  expect(ids).not.toContain(allBlogsBeforeDelete[0].id)
 })
   
 afterAll(async () => {
