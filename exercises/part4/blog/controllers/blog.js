@@ -53,32 +53,6 @@ blogsRouter.delete('/:id', async (req,res) => {
     } catch (err) {
         logger.error({error: `could not delete blog with id of ${id}`})
     }
-<<<<<<< HEAD
-=======
-})
-
-blogsRouter.put('/:id', async (req, res, next) => {
-    // get the id of the blog to update
-    const { id } = req.params
-
-    // get the information to update
-    const { body } = req
-
-    try {
-        // update the blog post
-        const updatedBlog = await Blog.findByIdAndUpdate(
-            id, 
-            body, 
-            { new: true, runValidators: true, context: 'query' }
-        )
-        res.status(200).json(updatedBlog)
-    } catch (err) {
-        logger.error({error: err})
-        next(err)
-    }
-
-
->>>>>>> dbebb313ece297f29e4f58070e02daa3dfcf5b68
 })
 
 module.exports = blogsRouter

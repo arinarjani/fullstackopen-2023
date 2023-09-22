@@ -41,7 +41,7 @@ describe('when there is initially one user in the db', () => {
         expect(usernames).toContain(newUser.username)
     })
 
-    test.only(`creation of a user fails with proper status code 
+    test(`creation of a user fails with proper status code 
          and message if username alaready taken`, async () => {
             const usersAtStart = await usersInDb();
 
