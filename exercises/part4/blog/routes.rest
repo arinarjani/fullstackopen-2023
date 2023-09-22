@@ -27,3 +27,23 @@ GET http://localhost:3003/api/blogs/65031fb4760c4c5d337666e3 HTTP/1.1
 
 DELETE http://localhost:3003/api/blogs/64fa19200630e2d4b721e291
 ###
+
+
+POST http://localhost:3003/api/users
+content-type: application/json
+
+{
+    "username": "sara",
+    "password": "sara"
+}
+
+###
+
+POST http://localhost:3003/api/users
+content-type: application/json
+
+{
+    "username": "sara"
+}
+
+###

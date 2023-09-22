@@ -47,8 +47,6 @@ blogsRouter.delete('/:id', async (req,res) => {
     } catch (err) {
         logger.error({error: `could not delete blog with id of ${id}`})
     }
-
-    res.status(204)
 })
 
 module.exports = blogsRouter
