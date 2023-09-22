@@ -2,10 +2,21 @@ POST http://localhost:3003/api/blogs
 content-type: application/json
 
 {
-    "title": "sara 1",
-    "author": "sara 1",
-    "url": "sara 1",
-    "likes": 5
+    "title": "sara 2",
+    "author": "sara 2",
+    "url": "sara 2",
+    "likes": 2
+}
+
+###
+
+POST http://localhost:3003/api/blogs
+content-type: application/json
+
+{
+    "title": "sara 2",
+    "author": "sara 2",
+    "url": "sara 2"
 }
 
 ###
@@ -21,13 +32,18 @@ content-type: application/json
 
 ###
 
-GET http://localhost:3003/api/blogs/65031fb4760c4c5d337666e3 HTTP/1.1
+GET http://localhost:3003/api/blogs/650476c18d2fe00536affaf0 HTTP/1.1
+
+###
+
+GET http://localhost:3003/api/blogs HTTP/1.1
 
 ###
 
 DELETE http://localhost:3003/api/blogs/64fa19200630e2d4b721e291
 ###
 
+<<<<<<< HEAD
 
 POST http://localhost:3003/api/users
 content-type: application/json
@@ -44,6 +60,13 @@ content-type: application/json
 
 {
     "username": "sara"
+=======
+PUT http://localhost:3003/api/blogs/64fdea4c86ce24cd78864764
+content-type: application/json
+
+{
+    "likes": 20
+>>>>>>> dbebb313ece297f29e4f58070e02daa3dfcf5b68
 }
 
 ###

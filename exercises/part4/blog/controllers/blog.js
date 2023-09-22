@@ -17,36 +17,68 @@ blogsRouter.get('/:id', async (req, res) => {
 
     try {
         const foundBlog = await Blog.findById(id).exec()
-        res.status(200).json(foundBlog)
-    } catch (err) {
+
+        if (foundBlog) {
+            res.json(foundBlog)
+        } else {
+            res.status(404).end()
+        }
+    } catch (Err) {
         logger.error({error: `blog not found with the id of ${id}`})
     }
 })
 
 blogsRouter.post('/', async (req, res) => {
-    const blogPost = new Blog(req.body)
-
+    const blogPost = new Blog({
+        title: req.body.title,
+        author: req.body.author,
+        url: req.body.url,
+        likes: req.body.likes || 0
+    })
+                 
     try {
         const createdBlog = await Blog.create(blogPost);
         res.status(201).json(createdBlog);
     } catch (err) {
-        logger.info(err);
-        res.status(400).json({error: 'missing required information'})
+        logger.error(err)
+        res.status(400).json({error: 'missing title or url'})
     }
-    // Blog.create(blogPost)
-    //     .then(createdBlog => res.status(201).json(createdBlog))
-    //     .catch(err => logger.info('blog not created...'))
 })
 
 blogsRouter.delete('/:id', async (req,res) => {
     const { id } = req.params
-
     try {
         await Blog.findByIdAndDelete(id)
         res.status(204).end()
     } catch (err) {
         logger.error({error: `could not delete blog with id of ${id}`})
     }
+<<<<<<< HEAD
+=======
+})
+
+blogsRouter.put('/:id', async (req, res, next) => {
+    // get the id of the blog to update
+    const { id } = req.params
+
+    // get the information to update
+    const { body } = req
+
+    try {
+        // update the blog post
+        const updatedBlog = await Blog.findByIdAndUpdate(
+            id, 
+            body, 
+            { new: true, runValidators: true, context: 'query' }
+        )
+        res.status(200).json(updatedBlog)
+    } catch (err) {
+        logger.error({error: err})
+        next(err)
+    }
+
+
+>>>>>>> dbebb313ece297f29e4f58070e02daa3dfcf5b68
 })
 
 module.exports = blogsRouter
