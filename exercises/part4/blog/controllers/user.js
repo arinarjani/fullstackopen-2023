@@ -8,8 +8,13 @@ usersRouter.get('/', async (req,res) => {
    res.json(users)
 })
 
+// 4.15 - implement a way to create users
 usersRouter.post('/', async (req, res, next) => {
    const { username, name, password } = req.body
+
+   if (password.length < 3) {
+      return res.status(400).json({ error: 'password must be at least 3 characters long' })
+   }
 
    try {
       const saltRounds = 10

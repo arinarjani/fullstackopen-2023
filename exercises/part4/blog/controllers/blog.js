@@ -2,6 +2,17 @@ const blogsRouter = require('express').Router()
 const Blog = require('../models/blogs')
 const logger = require('../utils/logger')
 const User = require('../models/user')
+const jwt = require('jsonwebtoken')
+
+const getTokenFrom = request => {
+    const authorization = request.get('authorization')
+
+    if (authorization && authorization.startsWith('Bearer ')) {
+        return authorization.replace('Bearer ', '')
+    }
+
+    return null
+}
 
 blogsRouter.get('/', async (req,res) => {
     try {
@@ -30,7 +41,13 @@ blogsRouter.get('/:id', async (req, res) => {
 })
 
 blogsRouter.post('/', async (req, res) => {
-    const user = await User.findById(req.body.userId)
+    const decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET)
+
+    if (!decodedToken) {
+        return res.status(401).json({ error: 'invalid token' })
+    }
+
+    const user = await User.findById(decodedToken.id)
 
     const blogPost = new Blog({
         title: req.body.title,
@@ -52,7 +69,7 @@ blogsRouter.post('/', async (req, res) => {
         res.status(201).json(createdBlog);
     } catch (err) {
         logger.error(err)
-        res.status(400).json({error: 'missing title or url'})
+        return res.status(400).json({ error: 'could not create blog, missing title or url' })
     }
 })
 

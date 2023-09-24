@@ -14,7 +14,7 @@ describe('when there is initially one user in the db', () => {
         const passwordHash = await bcrypt.hash('sekret', 10)
 
         await User.create({
-            username: 'arin', passwordHash
+            username: 'arin', passwordHash, name: 'arin',
         })
     })
 
@@ -48,6 +48,7 @@ describe('when there is initially one user in the db', () => {
             const user = {
                 username: 'arin',
                 password: 'arin',
+                name: 'arin'
             }
 
            const result = await api
@@ -61,7 +62,23 @@ describe('when there is initially one user in the db', () => {
             expect(usersAtEnd).toEqual(usersAtStart)
             // error message should be, 'expected `username` to be unique'
             expect(result._body.error).toContain('expected `username` to be unique')
-         })
+    })
+
+    // 4.16 - implement tests that ensure invalid users are not created and that an invalid 
+    //        add user operation returns a suitable status code and error message.
+    test('username and password must be at least 3 characters long', async () => {
+        const newUser = {
+            username: 's',
+            password: 's',
+            name: 's',
+        }
+
+        const result = await api
+            .post('/api/users')
+            .send(newUser)
+            .expect(400)
+            .expect('Content-Type', /application\/json/)
+    })
 })
 
 afterAll(async () => {
