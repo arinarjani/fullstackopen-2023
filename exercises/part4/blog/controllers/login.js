@@ -4,30 +4,32 @@ const bcrypt = require('bcrypt')
 const User = require('../models/user')
 require('dotenv').config()
 
-loginRouter.get('/', async (req, res) => {
-    res.send('hello from \/api\/login...')
-})
-
+// 4.18 - Implement token-based authentication according to part 4 chapter Token authentication.
+// create a route to login
 loginRouter.post('/', async (req, res, next) => {
+    // grab username and password from req
+    const { username, password } = req.body
+
     try {
-        const {username, password} = req.body
+        // find user in db
+        const user = await User.findOne({ username: username })
+        // see if user password matches provided password
 
-        const user = await User.findOne({username})
-        const passwordCorrect = user === null 
-            ? false 
-            : await bcrypt.compare(password, user.passwordHash)
+        const isPasswordCorrect = user === null
+        ? false
+        : bcrypt.compareSync(password, user.passwordHash) 
+        // either await bcrpyt.compare or this
 
-        if (!(user && passwordCorrect)) {
-            return res.status(401)
-                      .json({error: `invalid password - ${password} or username - ${username}`})
-        }
-
-        const userForToken = {
+        // if all checks out create a token with jwt and send back the token
+       if (!(user && isPasswordCorrect)) {
+            return res.status(401).json({error: 'invalid username or password'})
+       } else {
+        const infoForToken = {
             username: user.username,
             id: user.id
         }
 
-        const token = await jwt.sign(userForToken, process.env.SECRET, {expiresIn: '1h'})
+        const token = jwt.sign(infoForToken, process.env.SECRET, {expiresIn: '1h'})
 
         res.status(200)
             .send({
@@ -35,10 +37,11 @@ loginRouter.post('/', async (req, res, next) => {
                 username: user.username,
                 name: user.name
             })
+       }
     } catch (err) {
-        console.log('hit the error...')
         next(err)
     }
+
 })
 
 module.exports = loginRouter
