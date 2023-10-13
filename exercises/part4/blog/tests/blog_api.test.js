@@ -76,6 +76,7 @@ describe('viewing a specific note', () => {
     // update the first blog in the db
     await api
       .put(`/api/blogs/${beforeUpdate[0].id}`)
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFyaW4iLCJpZCI6IjY1MjA1ZWE0MDhhYmIxMTU1YTM3YTVlYiIsImlhdCI6MTY5NzIxODYzMX0.4X-KMrGWF7zcuZErUSL_VX8Ru9lDROLqVj3XQsZ7S24')
       .send({ likes: 5 })
       .expect(200)
       .expect('Content-Type', /application\/json/)
@@ -96,7 +97,8 @@ describe('addtion of a new blog', () => {
       // POST blog to db
       await api
         .post('/api/blogs')
-        .send({title: 'blog 3', author: 'author 3', url: 'url 3', likes: 3})
+        .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFyaW4iLCJpZCI6IjY1MjA1ZWE0MDhhYmIxMTU1YTM3YTVlYiIsImlhdCI6MTY5NzIxODYzMX0.4X-KMrGWF7zcuZErUSL_VX8Ru9lDROLqVj3XQsZ7S24')
+        .send({title: 'blog 3', author: 'author 3', url: 'url 3', likes: 3, user: "65205ea408abb1155a37a5eb"})
         .expect(201)
         .expect('Content-Type', /application\/json/)
 
@@ -143,6 +145,7 @@ describe('addtion of a new blog', () => {
     // POST a blog to the db without likes
     await api 
       .post('/api/blogs')
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFyaW4iLCJpZCI6IjY1MjA1ZWE0MDhhYmIxMTU1YTM3YTVlYiIsImlhdCI6MTY5NzIxODYzMX0.4X-KMrGWF7zcuZErUSL_VX8Ru9lDROLqVj3XQsZ7S24')
       .send({title: 'no likes', author: 'no likes', url: 'no likes'})
       .expect(201)
       .expect('Content-Type', /application\/json/)
@@ -159,21 +162,28 @@ describe('deletion of a blog', () => {
   test('can one delete a blog from the db', async () => {
     // get all the blogs in the db before the delete
     const allBlogsBeforeDelete = await blogsInDb()
-  
+
     // delete the first blog
     await api
       .delete(`/api/blogs/${allBlogsBeforeDelete[0].id}`)
+      .set('Authorization', 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFyaW4iLCJpZCI6IjY1MjA1ZWE0MDhhYmIxMTU1YTM3YTVlYiIsImlhdCI6MTY5NzIxODYzMX0.4X-KMrGWF7zcuZErUSL_VX8Ru9lDROLqVj3XQsZ7S24')
       .expect(204)
   
     // get all the blogs in the db after the delete  
     const allBlogsAfterDelete = await blogsInDb()
-  
+
     expect(allBlogsAfterDelete).toHaveLength(allBlogsBeforeDelete.length - 1)
   
     // get all the id's of blogs in allBlogsAfterDelete
     const ids = allBlogsAfterDelete.map(blog => blog.id)
   
     expect(ids).not.toContain(allBlogsBeforeDelete[0].id)
+  })
+})
+
+describe('', () => {
+  test('', async () => {
+
   })
 })
   

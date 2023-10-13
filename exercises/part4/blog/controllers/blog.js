@@ -3,6 +3,9 @@ const Blog = require('../models/blogs')
 const logger = require('../utils/logger')
 const User = require('../models/user')
 const jwt = require('jsonwebtoken')
+const TokenHandler = require('../middleware/TokenHandler')
+const UserExtractor = require('../middleware/UserExtractor')
+require('dotenv').config()
 
 // const getTokenFrom = request => {
 //     const authorization = request.get('authorization')
@@ -58,27 +61,31 @@ blogsRouter.get('/:id', async (req, res) => {
 // 4.19 - Modify adding new blogs so that it is only possible if a valid token is sent 
 //        with the HTTP POST request. The user identified by the token is designated as 
 //        the creator of the blog.
-blogsRouter.post('/', async (req, res) => {
-    const decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET)
-    // const decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET)
-
-    if (!decodedToken) {
-        return res.status(401).json({ error: 'invalid token' })
-    }
-
-    const user = await User.findById(decodedToken.id)
-
-    const blogPost = new Blog({
-        title: req.body.title,
-        author: req.body.author,
-        url: req.body.url,
-        likes: req.body.likes || 0,
-        // pass a user id to the user field, as user stores id's only
-        user: user.id,
-    })
-
-                 
+// 4.22 - create a new middleware userExtractor, that finds out the user and 
+//        sets it to the request object. **THIS ROUTE IS MORE FOR CHAINING MIDDLEWARE**
+blogsRouter.post('/', TokenHandler, async (req, res) => {
     try {
+        const decodedToken = jwt.verify(req.token, process.env.SECRET)
+        // const decodedToken = jwt.verify(getTokenFrom(req), process.env.SECRET)
+
+        if (!decodedToken) {
+            return res.status(401).json({ error: 'invalid token' })
+        }
+
+        const user = await User.findById(decodedToken.id)
+
+        // UNCOMMENT WHEN TESTING AND COMMENT OUT LINE 75
+        // const user = await User.findById('652970c9dd3d5cdbed32fc73')
+
+        const blogPost = new Blog({
+            title: req.body.title,
+            author: req.body.author,
+            url: req.body.url,
+            likes: req.body.likes || 0,
+            // pass a user id to the user field, as user stores id's only
+            user: user.id,
+        })
+
         const createdBlog = await Blog.create(blogPost);
 
         // pass the createdBlog id to the user.blogs field
@@ -88,17 +95,54 @@ blogsRouter.post('/', async (req, res) => {
         res.status(201).json(createdBlog);
     } catch (err) {
         logger.error(err)
-        return res.status(400).json({ error: 'could not create blog, missing title or url' })
+        return res.status(400).json({ error: 'could not create blog' })
     }
 })
 
-blogsRouter.delete('/:id', async (req,res) => {
+// 4.21 - Change the delete blog operation so that a blog can be deleted only by 
+//        the user who added the blog.
+// 4.22 - create a new middleware userExtractor, that finds out the user and 
+//        sets it to the request object. **THIS ROUTE IS MORE FOR CHAINING MIDDLEWARE**
+blogsRouter.delete('/:id', TokenHandler, UserExtractor, async (req,res) => {
     const { id } = req.params
+
     try {
-        await Blog.findByIdAndDelete(id)
-        res.status(204).end()
-    } catch (err) {
+        // const verified = jwt.verify(req.token, process.env.SECRET)
+        const foundBlog = await Blog.findById(id)
+
+        // see if blog user id matches token id
+        if ( foundBlog.user.toString() === req.user ) {
+            // delete blog if all checks out, else error
+            await Blog.findByIdAndDelete(id)
+            return res.status(204).end()
+        }
+    } catch (error) {
         logger.error({error: `could not delete blog with id of ${id}`})
+    }
+    
+    // try {
+    //     await Blog.findByIdAndDelete(id)
+    //     res.status(204).end()
+    // } catch (err) {
+    //     logger.error({error: `could not delete blog with id of ${id}`})
+    // }
+})
+
+blogsRouter.put('/:id',TokenHandler, UserExtractor, async (req, res, next) => {
+    try {
+        const { id } = req.params
+        const { likes } = req.body
+
+        const foundBlog = await Blog.findById(id)
+
+        if ( foundBlog.user.toString() === req.user ) {
+            foundBlog.likes = likes
+            await foundBlog.save()
+            res.status(200).send(foundBlog)
+        }
+    } catch (error) {
+        next(error)
+        res.status(401).send({ error: 'unable to update blog' })
     }
 })
 

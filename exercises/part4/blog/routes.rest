@@ -37,13 +37,13 @@ Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6InNhc
 
 POST http://localhost:3003/api/blogs
 content-type: application/json
-Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFyaW4iLCJpZCI6IjY1MjA1ZWE0MDhhYmIxMTU1YTM3YTVlYiIsImlhdCI6MTY5NjY0OTEwNywiZXhwIjoxNjk2NjUyNzA3fQ.dA_TbhJfiKkn9SzmUqK0sY5kpICYkA6f26xMVUxb76E
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFyaW4iLCJpZCI6IjY1MjA1ZWE0MDhhYmIxMTU1YTM3YTVlYiIsImlhdCI6MTY5NzE0NDIxMSwiZXhwIjoxNjk3MTQ3ODExfQ.vKJj7v9SpvsQ45nN-96IkkhE-qnWbfC50Axe1jfh1Yc
 
 {
-    "title": "sara 9",
-    "author": "sara 9",
-    "url": "sara 9",
-    "likes": 9
+    "title": "sara 10",
+    "author": "sara 10",
+    "url": "sara 10",
+    "likes": 10
 }
 
 ###
@@ -56,7 +56,9 @@ GET http://localhost:3003/api/blogs HTTP/1.1
 
 ###
 
-DELETE http://localhost:3003/api/blogs/64fa19200630e2d4b721e291
+DELETE http://localhost:3003/api/blogs/6520d743cf63c0446a965733
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFyaW4iLCJpZCI6IjY1MjA1ZWE0MDhhYmIxMTU1YTM3YTVlYiIsImlhdCI6MTY5NzIxMzkxMywiZXhwIjoxNjk3MjE3NTEzfQ.AO1Pb_nswc3vKdr46EzUVsbEbgVe54OuUJpXmpa3PpA
+
 ###
 
 ### users
@@ -128,3 +130,13 @@ Content-Type: application/json
     "password": "arin"
 }
 ###
+
+### UPDATE
+
+PUT http://localhost:3003/api/blogs/6520d78a65160e077da7cb34
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFyaW4iLCJpZCI6IjY1MjA1ZWE0MDhhYmIxMTU1YTM3YTVlYiIsImlhdCI6MTY5NzIxMzkxMywiZXhwIjoxNjk3MjE3NTEzfQ.AO1Pb_nswc3vKdr46EzUVsbEbgVe54OuUJpXmpa3PpA
+Content-Type: application/json
+
+{
+    "likes": 5
+}

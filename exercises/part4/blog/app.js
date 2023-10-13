@@ -10,6 +10,7 @@ const usersRouter = require('./controllers/user')
 const loginRouter = require('./controllers/login')
 const ErrorHandler = require('./middleware/error')
 const TokenHandler = require('./middleware/TokenHandler')
+const UserExtractor = require('./middleware/UserExtractor')
 
 mongoose.connect(MONGO_URI)
 
@@ -23,7 +24,8 @@ app.use(express.json())
 app.use('/api/users', usersRouter)
 app.use('/api/login', loginRouter)
 // 4.20 - create a middleware that gets the token, and modify request to have request.token
-app.use(TokenHandler)
+// app.use(TokenHandler)
+// app.use(UserExtractor)
 app.use('/api/blogs', blogsRouter)
 app.use(ErrorHandler)
 
