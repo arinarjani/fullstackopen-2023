@@ -1,0 +1,33 @@
+const Login = (
+    { handleLogin, username, setUsername, password, setPassword}
+    ) => {
+    return (
+        <form onSubmit={handleLogin}>
+            <div>
+            <label htmlFor="username">
+                username:
+            </label>
+            <input 
+                type="text" 
+                name="username" 
+                value={username}
+                onChange={ (e) => setUsername(e.target.value) }
+            />
+            </div>
+            <div>
+            <label htmlFor="password">
+                password:
+            </label>
+            <input 
+                type="password" 
+                name="password"
+                value={password} 
+                onChange={ (e) => setPassword(e.target.value) }
+            />
+            </div>
+            <button type="submit">login</button>
+        </form>
+    )
+}
+
+export default Login

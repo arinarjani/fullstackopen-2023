@@ -1,11 +1,13 @@
 import {useState, useEffect} from 'react'
-import phonebook from './services/phonebook';
+import phonebook from './services/phonebook'
+import loginService from './services/login'
 
 // Components
 import Filter from './components/Filter';
 import PersonForm from './components/PersonForm';
 import Persons from './components/Persons';
 import Notification from './components/Notification';
+import login from './services/login';
 
 function App() {
   // 1
@@ -20,6 +22,12 @@ function App() {
   const [filteredPeople, setFilteredPeople] = useState([]);
   // 6
   const [notification, setNotification] = useState(null);
+  // 7
+  const [username, setUsername] = useState('')
+  // 8
+  const [password, setPassword] = useState('');
+  // 9
+  const [user, setUser] = useState(null)
 
   // 2.11 Modify the application such that the initial state of the data is fetched from 
   // the server using the axios-library. Complete the fetching with an Effect hook.
@@ -143,10 +151,50 @@ function App() {
     setFilteredPeople(filteredNames);
   }
 
+  // handle the password and username from the user once submitted
+  const handleLogin = async (event) => {
+    event.preventDefault()
+    console.log('logged in with', username, password)
+
+    try {
+      const user = await loginService.login({
+        username, password
+      })
+
+      setUser(user)
+      setUsername('')
+      setPassword('')
+    } catch (error) {
+      setNotification(error)
+      setTimeout(() => {
+        setNotification(null)
+      }, 3000);
+    }
+  }
+
   return (
     <div>
       <Notification message={notification} />
       <h2>Phonebook</h2>
+      <form onSubmit={handleLogin}>
+        <div>
+          username:
+          <input 
+            type="text" 
+            value={username} 
+            name='username'
+            onChange={ (e) => setUsername(e.target.value) } />
+        </div>
+        <div>
+          password:
+          <input 
+            type="password" 
+            value={password} 
+            name='password'
+            onChange={ (e) => setPassword(e.target.value) } />
+        </div>
+        <button type="submit">login</button>
+      </form>
       <Filter filteredPeople={filteredPeople} searchTerm={search} search={handleSearch} />
       <h2>Add A New Contact</h2>
       <PersonForm 

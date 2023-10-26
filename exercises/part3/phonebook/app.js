@@ -18,7 +18,9 @@ const app = express();
 
 // 3.11 - generate a 'build' folder via 'npm run build', put this 'build' folder
 //        into the backend directory, and test
-app.use(express.static('build'));
+// ** UNCOMMENT LINE 22 WHEN DONE MAKING A NEW 'BUILD' FOLDER FOR THE FRONT-END **
+// app.use(express.static('build'));
+
 // 3.9 - makae the backend work with the front-end. I did this via proxy in
 //       'package.json' after changing the url in '/services/phonebook.js' from
 //       'http://localhost:3001/persons' to '/api/persons' in part2/phonebook/src
@@ -51,7 +53,7 @@ app.use(morgan(':method :url :status :res[content-length] - :response-time ms :b
 //     }
 // ];
 
-app.use('/api/persons', phonebookRouter);
+app.use('/api/persons', phonebookRouter); 
 
 // 3.2 - Implement a page at the address http://localhost:3001/info that looks roughly 
 //       like this:
