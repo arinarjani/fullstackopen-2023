@@ -6,6 +6,7 @@ require('dotenv').config()
 const UserExtractor = (req, res, next) => {
     try {
         req.user = jwt.verify(req.token, process.env.SECRET).id
+        console.log('req.user', req.user)
     } catch (error) {
         console.log(error)
     }   
