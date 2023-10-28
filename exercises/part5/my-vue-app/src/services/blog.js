@@ -17,6 +17,7 @@ const login = async ( username, password ) => {
         return returnedUser
     } catch (err) {
         console.log(err)
+        return err
     }
 }
 

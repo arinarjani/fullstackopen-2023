@@ -3,6 +3,7 @@ import blogServices from './services/blog'
 import Blog from './components/Blog'
 import Login from './components/Login'
 import NewBlog from './components/NewBlog'
+import Notification from './components/Notification'
 import './App.css'
 
 function App() {
@@ -15,6 +16,9 @@ function App() {
   const [url, setUrl] = useState('')
   const [likes, setLikes] = useState(0)
   const [refreshKey, setRefreshKey] = useState(0)
+  // 5.4 - Implement notifications that inform the user about 
+  //       successful and unsuccessful operations at the top of the page.
+  const [notification, setNotification] = useState('')
 
   useEffect(() => {
     blogServices.getAll().then(response => setBlogs(response.data))
@@ -28,13 +32,22 @@ function App() {
     }
   }, [refreshKey]) // doesn't refresh the page for some reason --> line 67
 
+  // 5.2 - Make the login 'permanent' by using the local storage. 
+  //       Also, implement a way to log out.
   const handleLogin = (event) => {
     event.preventDefault()
     try {
       blogServices.login(username, password)
                   .then(({ data }) => {
-                    window.localStorage.setItem('loggedInUser', JSON.stringify(data))
-                    setUser(data)
+                    if (data) {
+                      window.localStorage.setItem('loggedInUser', JSON.stringify(data))
+                      setUser(data)
+                    } else {
+                      setNotification('wrong usernamr or password')
+                      setTimeout(() => {
+                        setNotification('')
+                      }, 3000)
+                    }
                   })
       
       setUsername('')
@@ -44,17 +57,23 @@ function App() {
     }
   }
 
+  // 5.3 - Expand your application to allow a logged-in user to add 
+  //       new blogs
   const addBlog = (event) => {
     event.preventDefault()
     try {
       blogServices.createBlog(user, title, author, likes, url).then(data => {
         console.log(data) 
+        setNotification(data.data.title)
         setRefreshKey(oldState => oldState + 1)
       })
       setTitle('')
       setAuthor('')
       setUrl('')
       setLikes('')
+      setTimeout(() => {
+        setNotification('')
+      }, 3000)
     } catch (error) {
       console.log(error)
     }
@@ -62,6 +81,7 @@ function App() {
 
   return (
     <>
+      {notification && <Notification notification={notification} />}
       {user !== null && <button onClick={() => {
         setRefreshKey(oldState => oldState + 1)
         window.localStorage.clear()
