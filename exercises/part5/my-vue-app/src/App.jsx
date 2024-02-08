@@ -43,7 +43,7 @@ function App() {
                       window.localStorage.setItem('loggedInUser', JSON.stringify(data))
                       setUser(data)
                     } else {
-                      setNotification('wrong usernamr or password')
+                      setNotification('wrong username or password')
                       setTimeout(() => {
                         setNotification('')
                       }, 3000)
@@ -64,7 +64,7 @@ function App() {
     try {
       blogServices.createBlog(user, title, author, likes, url).then(data => {
         console.log(data) 
-        setNotification(data.data.title)
+        setNotification(`${data.data.title} added`)
         setRefreshKey(oldState => oldState + 1)
       })
       setTitle('')
@@ -82,12 +82,12 @@ function App() {
   return (
     <>
       {notification && <Notification notification={notification} />}
-      {user !== null && <button onClick={() => {
+      {user && <button onClick={() => {
         setRefreshKey(oldState => oldState + 1)
         window.localStorage.clear()
       }}>logout</button> }
       <h1>Blogs App</h1>
-      { user !== null && <h3>{ user.name } is logged in</h3> }
+      { user && <h3>{ user.name } is logged in</h3> }
       { user === null ? 
       <Login 
         handleLogin={handleLogin}

@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "cross-env NODE_ENV=test jest -- tests/blog_api.test.js --verbose --runInBand",
-    "dev": "cross-env NODE_END=development nodemon index.js",
+    "dev": "cross-env NODE_ENV=development nodemon index.js",
     "start": "cross-env NODE_ENV=production node index.js"
   },
   "author": "",
