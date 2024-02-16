@@ -4,9 +4,11 @@ import Blog from './components/Blog'
 import Login from './components/Login'
 import NewBlog from './components/NewBlog'
 import Notification from './components/Notification'
+import Togglable from './components/Togglable'
 import './App.css'
 
 function App() {
+  
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
@@ -15,10 +17,17 @@ function App() {
   const [author, setAuthor] = useState('')
   const [url, setUrl] = useState('')
   const [likes, setLikes] = useState(0)
+  const [loginVisible, setLoginVisible] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   // 5.4 - Implement notifications that inform the user about 
   //       successful and unsuccessful operations at the top of the page.
   const [notification, setNotification] = useState('')
+  
+  const styles = {
+    main: {
+      display: loginVisible ? '' : 'none'
+    }
+  }
 
   useEffect(() => {
     blogServices.getAll().then(response => setBlogs(response.data))
@@ -57,8 +66,7 @@ function App() {
     }
   }
 
-  // 5.3 - Expand your application to allow a logged-in user to add 
-  //       new blogs
+  // 5.3 - Expand your application to allow a logged-in user to add bew blogs
   const addBlog = (event) => {
     event.preventDefault()
     try {
@@ -88,26 +96,35 @@ function App() {
       }}>logout</button> }
       <h1>Blogs App</h1>
       { user && <h3>{ user.name } is logged in</h3> }
+      
       { user === null ? 
-      <Login 
-        handleLogin={handleLogin}
-        username={username}
-        setUsername={setUsername}
-        password={password}
-        setPassword={setPassword}
-      /> :
-      <NewBlog 
-        addBlog={addBlog}
-        title={title}
-        setTitle={setTitle}
-        author={author}
-        setAuthor={setAuthor}
-        url={url}
-        setUrl={setUrl}
-        likes={likes}
-        setLikes={setLikes}
-      /> }
-      <Blog blogs={blogs} />
+      <>
+        <Togglable btnLabel={'login'}>
+          <Login
+            handleLogin={handleLogin}
+            username={username}
+            setUsername={setUsername}
+            password={password}
+            setPassword={setPassword}
+          /> 
+        </Togglable>
+      </> 
+        :
+      <>
+        <NewBlog 
+          addBlog={addBlog}
+          title={title}
+          setTitle={setTitle}
+          author={author}
+          setAuthor={setAuthor}
+          url={url}
+          setUrl={setUrl}
+          likes={likes}
+          setLikes={setLikes}
+        /> 
+        <Blog blogs={blogs} />
+      </>
+      }
     </>
   )
 }
