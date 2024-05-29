@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import blogServices from './services/blog'
 import Blog from './components/Blog'
 import Login from './components/Login'
@@ -8,20 +8,23 @@ import Togglable from './components/Togglable'
 import './App.css'
 
 function App() {
-  
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
+  // PART 5.B.STATE OF THE FORM
+  // const [username, setUsername] = useState('')
+  // const [password, setPassword] = useState('')
   const [user, setUser] = useState(null)
   const [blogs, setBlogs] = useState([])
-  const [title, setTitle] = useState('')
-  const [author, setAuthor] = useState('')
-  const [url, setUrl] = useState('')
-  const [likes, setLikes] = useState(0)
+  console.log('blogs', blogs)
+  // PART 5.B.STATE OF THE FORM
+  // const [title, setTitle] = useState('')
+  // const [author, setAuthor] = useState('')
+  // const [url, setUrl] = useState('')
+  // const [likes, setLikes] = useState(0)
   const [loginVisible, setLoginVisible] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
   // 5.4 - Implement notifications that inform the user about 
   //       successful and unsuccessful operations at the top of the page.
   const [notification, setNotification] = useState('')
+  const blogFormRef = useRef()
   
   const styles = {
     main: {
@@ -43,10 +46,10 @@ function App() {
 
   // 5.2 - Make the login 'permanent' by using the local storage. 
   //       Also, implement a way to log out.
-  const handleLogin = (event) => {
-    event.preventDefault()
+  const handleLogin = (loginDetails) => {
+    // event.preventDefault()
     try {
-      blogServices.login(username, password)
+      blogServices.login(loginDetails)
                   .then(({ data }) => {
                     if (data) {
                       window.localStorage.setItem('loggedInUser', JSON.stringify(data))
@@ -58,27 +61,23 @@ function App() {
                       }, 3000)
                     }
                   })
-      
-      setUsername('')
-      setPassword('')
+      // PART 5.B.STATE OF THE FORM
+      // setUsername('')
+      // setPassword('')
     } catch (err) {
       console.log(err)
     }
   }
 
   // 5.3 - Expand your application to allow a logged-in user to add bew blogs
-  const addBlog = (event) => {
-    event.preventDefault()
+  const addBlog = (blog) => {
+    blogFormRef.current.toggleVisibility()
     try {
-      blogServices.createBlog(user, title, author, likes, url).then(data => {
+      blogServices.createBlog(blog).then(data => {
         console.log(data) 
         setNotification(`${data.data.title} added`)
         setRefreshKey(oldState => oldState + 1)
       })
-      setTitle('')
-      setAuthor('')
-      setUrl('')
-      setLikes('')
       setTimeout(() => {
         setNotification('')
       }, 3000)
@@ -86,6 +85,26 @@ function App() {
       console.log(error)
     }
   }
+  // PART 5.B.STATE OF THE FORM
+  // const addBlog = (event) => {
+  //   event.preventDefault()
+  //   try {
+  //     blogServices.createBlog(user, title, author, likes, url).then(data => {
+  //       console.log(data) 
+  //       setNotification(`${data.data.title} added`)
+  //       setRefreshKey(oldState => oldState + 1)
+  //     })
+  //     setTitle('')
+  //     setAuthor('')
+  //     setUrl('')
+  //     setLikes('')
+  //     setTimeout(() => {
+  //       setNotification('')
+  //     }, 3000)
+  //   } catch (error) {
+  //     console.log(error)
+  //   }
+  // }
 
   return (
     <>
@@ -102,15 +121,20 @@ function App() {
         <Togglable btnLabel={'login'}>
           <Login
             handleLogin={handleLogin}
-            username={username}
-            setUsername={setUsername}
-            password={password}
-            setPassword={setPassword}
+            // username={username}
+            // setUsername={setUsername}
+            // password={password}
+            // setPassword={setPassword}
           /> 
         </Togglable>
       </> 
         :
-      <>
+      <Togglable btnLabel={'add blog'} ref={blogFormRef}>
+        <NewBlog
+          addBlog={addBlog}
+          user={user}
+        />
+        {/* PART 5.B.STATE OF THE FORM 
         <NewBlog 
           addBlog={addBlog}
           title={title}
@@ -121,9 +145,12 @@ function App() {
           setUrl={setUrl}
           likes={likes}
           setLikes={setLikes}
-        /> 
-        <Blog blogs={blogs} />
-      </>
+        />  */}
+        {/* <Blog blogs={blogs} /> */}
+        {blogs.map(blog => 
+          <Blog blog={blog} />
+        )}
+      </Togglable>
       }
     </>
   )
