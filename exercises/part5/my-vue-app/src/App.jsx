@@ -58,7 +58,6 @@ function App() {
     blogFormRef.current.toggleVisibility()
     try {
       blogServices.createBlog(blog).then(data => {
-        // console.log(data) 
         setNotification(`${data.data.title} added`)
         setRefreshKey(oldState => oldState + 1)
       })
@@ -66,7 +65,7 @@ function App() {
         setNotification('')
       }, 3000)
     } catch (error) {
-      console.log(error)
+        console.log(error)
     }
   }
 
@@ -95,7 +94,7 @@ function App() {
           user={user}
         />
         {blogs.map(blog => 
-          <Blog blog={blog} />
+          <Blog blog={blog} user={user} />
         )}
       </Togglable>
       }

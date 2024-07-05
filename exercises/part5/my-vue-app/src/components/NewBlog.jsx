@@ -8,7 +8,7 @@ const NewBlog = ( { addBlog, user } ) => {
 
     const createBlog = (event) => {
         event.preventDefault()
-        addBlog( {user, title, author, likes, url} )
+        addBlog( {user , title, author, likes, url} )
 
         setTitle('')
         setAuthor('')

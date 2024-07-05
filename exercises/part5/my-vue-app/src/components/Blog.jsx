@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import blogServices from '../services/blog'
 
-const Blog = ( { blog } ) => {
+const Blog = ( { blog, user } ) => {
   console.log('blog', blog)
 
   // state to control if the blog details are hidden or not with a boolean
@@ -25,7 +25,7 @@ const Blog = ( { blog } ) => {
     }
 
     const increaseLikes = () => {
-      blogServices.increaseLikes(blog.id, blog)
+      blogServices.increaseLikes(blog.id, blog, user)
     }
 
     const decreaseLikes = () => {
