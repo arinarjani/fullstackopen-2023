@@ -26,9 +26,10 @@ const createBlog = async ( blog ) => {
         const newBlog = await axios.post('/api/blogs', 
             blog,
             {  headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer' + ' ' + blog.user.token
-            } }
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer' + ' ' + blog.user.token
+                 } 
+            }
         )
 
         return newBlog
@@ -37,33 +38,24 @@ const createBlog = async ( blog ) => {
     }
 }
 
-const increaseLikes = () => {
-    alert('likes increased by one')
+const increaseLikes = async ( id, blog ) => {
+    // console.log('likes increased by one with the id of: ', id)
+    try {
+        await axios.put(`/api/blogs/${id}`, blog,
+            {  headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer' + ' ' + blog.user.token
+                } 
+            } 
+        )
+    } catch (error) {
+        console.log('errrrrrrrrrrrr', error)
+    }
 }
 
-const decreaseLikes = () => {
-    alert('decreased likes by one')
+const decreaseLikes = ( id ) => {
+    console.log('decreased likes by one with the id of:', id)
 }
-// const createBlog = async ( user, title, author, likes, url ) => {
-//     try {
-//         const newBlog = await axios.post('/api/blogs', 
-//             {
-//                 title,
-//                 author,
-//                 likes,
-//                 url
-//             },
-//             {  headers: {
-//                 'Content-Type': 'application/json',
-//                 'Authorization': 'Bearer' + ' ' + user.token
-//             } }
-//         )
-
-//         return newBlog
-//     } catch (error) {
-//         console.log(error)
-//     }
-// }
 
 export default {
     getAll,

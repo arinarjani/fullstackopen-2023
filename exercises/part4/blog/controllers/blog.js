@@ -7,30 +7,7 @@ const TokenHandler = require('../middleware/TokenHandler')
 const UserExtractor = require('../middleware/UserExtractor')
 require('dotenv').config()
 
-// const getTokenFrom = request => {
-//     const authorization = request.get('authorization')
 
-//     if (authorization && authorization.startsWith('Bearer ')) {
-//         return authorization.replace('Bearer ', '')
-//     }
-
-//     return null
-// }
-
-// WAY DONE BY THE TUTORIAL
-// blogsRouter.get('/', async (req,res) => {
-//     try {
-//         const allBlogs = await Blog.find({}).populate('user', {username: 1, name: 1});
-//         res.json(allBlogs);
-//     } catch (err) {
-//         logger.info(err);
-//     }
-//     // Blog.find({}).then(blogs => res.json(blogs))
-// })
-
-// WAY DONE BY READING THE MONGOOSE DOCS, BUT select: ['username', 'blogs] isn't in the docs, and it works, so there it that
-// 4.17 - Expand blogs so that each blog contains information on the creator of the blog.
-//      - Expand users so that each usercontains information on the blogs created by each user.
 blogsRouter.get('/', async (req, res) => {
     try {
         // get all blogs and list the users info for each blog
@@ -58,11 +35,6 @@ blogsRouter.get('/:id', async (req, res) => {
     }
 })
 
-// 4.19 - Modify adding new blogs so that it is only possible if a valid token is sent 
-//        with the HTTP POST request. The user identified by the token is designated as 
-//        the creator of the blog.
-// 4.22 - create a new middleware userExtractor, that finds out the user and 
-//        sets it to the request object. **THIS ROUTE IS MORE FOR CHAINING MIDDLEWARE**
 blogsRouter.post('/', TokenHandler, async (req, res) => {
     try {
         const decodedToken = jwt.verify(req.token, process.env.SECRET)
@@ -99,10 +71,6 @@ blogsRouter.post('/', TokenHandler, async (req, res) => {
     }
 })
 
-// 4.21 - Change the delete blog operation so that a blog can be deleted only by 
-//        the user who added the blog.
-// 4.22 - create a new middleware userExtractor, that finds out the user and 
-//        sets it to the request object. **THIS ROUTE IS MORE FOR CHAINING MIDDLEWARE**
 blogsRouter.delete('/:id', TokenHandler, UserExtractor, async (req,res) => {
     const { id } = req.params
 
@@ -119,31 +87,31 @@ blogsRouter.delete('/:id', TokenHandler, UserExtractor, async (req,res) => {
     } catch (error) {
         logger.error({error: `could not delete blog with id of ${id}`})
     }
-    
-    // try {
-    //     await Blog.findByIdAndDelete(id)
-    //     res.status(204).end()
-    // } catch (err) {
-    //     logger.error({error: `could not delete blog with id of ${id}`})
-    // }
 })
 
-blogsRouter.put('/:id',TokenHandler, UserExtractor, async (req, res, next) => {
-    try {
-        const { id } = req.params
-        const { likes } = req.body
+blogsRouter.put('/:id', TokenHandler, UserExtractor, async (req, res, next) => {
+    console.log('you have hit the /api/blogs/:id PUT route... :)')
+    console.log('req.body', req.body)
+    console.log('req.token', req.token)
+    console.log('req.user', req.user)
 
-        const foundBlog = await Blog.findById(id)
+    // TODO: FIGURE OUT HOW TO GET THE USE AND TOKEN AND HEADER STUFF WITH AXIOS
 
-        if ( foundBlog.user.toString() === req.user ) {
-            foundBlog.likes = likes
-            await foundBlog.save()
-            res.status(200).send(foundBlog)
-        }
-    } catch (error) {
-        next(error)
-        res.status(401).send({ error: 'unable to update blog' })
-    }
+    // try {
+    //     const { id } = req.params
+    //     const { likes } = req.body
+
+    //     const foundBlog = await Blog.findById(id)
+
+    //     if ( foundBlog.user.toString() === req.user ) {
+    //         foundBlog.likes = likes
+    //         await foundBlog.save()
+    //         res.status(200).send(foundBlog)
+    //     }
+    // } catch (error) {
+    //     next(error)
+    //     res.status(401).send({ error: 'unable to update blog' })
+    // }
 })
 
 module.exports = blogsRouter
