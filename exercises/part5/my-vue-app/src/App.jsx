@@ -13,6 +13,7 @@ function App() {
   console.log('blogs', blogs)
   const [loginVisible, setLoginVisible] = useState(false)
   const [refreshKey, setRefreshKey] = useState(0)
+  console.log('refreshKey', refreshKey)
   const [notification, setNotification] = useState('')
   const blogFormRef = useRef()
   
@@ -54,6 +55,11 @@ function App() {
     }
   }
 
+  const handleLogOut = () => {
+    setRefreshKey(oldState => oldState + 1)
+    window.localStorage.clear()
+  }
+
   const addBlog = (blog) => {
     blogFormRef.current.toggleVisibility()
     try {
@@ -72,10 +78,7 @@ function App() {
   return (
     <>
       {notification && <Notification notification={notification} />}
-      {user && <button onClick={() => {
-        setRefreshKey(oldState => oldState + 1)
-        window.localStorage.clear()
-      }}>logout</button> }
+      {user && <button onClick={ handleLogOut }>logout</button> }
       <h1>Blogs App</h1>
       { user && <h3>{ user.name } is logged in</h3> }
       
@@ -93,11 +96,14 @@ function App() {
           addBlog={addBlog}
           user={user}
         />
-        {blogs.map(blog => 
+        {/* {blogs.map(blog => 
           <Blog blog={blog} user={user} />
-        )}
+        )} */}
       </Togglable>
       }
+      {blogs.sort( ( a,b ) => a.likes - b.likes).map(blog => 
+          <Blog blog={blog} user={user} setRefreshKey={setRefreshKey} />
+        )}
     </>
   )
 }

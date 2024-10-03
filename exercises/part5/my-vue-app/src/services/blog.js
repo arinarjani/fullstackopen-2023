@@ -22,8 +22,6 @@ const login = async ( loginDetails ) => {
 }
 
 const createBlog = async ( blog ) => {
-    console.log('blog.user....', blog.user)
-
     try {
         const newBlog = await axios.post('/api/blogs', 
             blog,
@@ -41,8 +39,6 @@ const createBlog = async ( blog ) => {
 }
 
 const increaseLikes = async ( id, blog, user ) => {
-    console.log('user.......', user)
-
     // console.log('likes increased by one with the id of: ', id)
     try {
         await axios.put(`/api/blogs/${id}`, blog,

@@ -95,23 +95,25 @@ blogsRouter.put('/:id', TokenHandler, UserExtractor, async (req, res, next) => {
     console.log('req.token', req.token)
     console.log('req.user', req.user)
 
-    // TODO: FIGURE OUT HOW TO GET THE USE AND TOKEN AND HEADER STUFF WITH AXIOS
+    // TODO: FIGURE OUT HOW TO GET THE USER AND TOKEN AND HEADER STUFF WITH AXIOS
 
-    // try {
-    //     const { id } = req.params
-    //     const { likes } = req.body
+    try {
+        const { id } = req.params
+        const { likes } = req.body
 
-    //     const foundBlog = await Blog.findById(id)
+        const foundBlog = await Blog.findById(id)
 
-    //     if ( foundBlog.user.toString() === req.user ) {
-    //         foundBlog.likes = likes
-    //         await foundBlog.save()
-    //         res.status(200).send(foundBlog)
-    //     }
-    // } catch (error) {
-    //     next(error)
-    //     res.status(401).send({ error: 'unable to update blog' })
-    // }
+        console.log('foundBlog', foundBlog)
+
+        if ( foundBlog.user.toString() === req.user ) {
+            foundBlog.likes+=1
+            await foundBlog.save()
+            res.status(200).send(foundBlog)
+        }
+    } catch (error) {
+        next(error)
+        res.status(401).send({ error: 'unable to update blog' })
+    }
 })
 
 module.exports = blogsRouter
